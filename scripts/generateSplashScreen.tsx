@@ -2,7 +2,7 @@ import React from "react";
 import { renderToString } from "react-dom/server";
 import { View, StyleSheet, Text } from "react-native";
 import fs from "fs";
-import Logo from "../src/components/Logo";
+import Logo from "../src/components/Logo.component";
 import { darkBrandColors } from "../src/theme/paperTheme";
 
 // This is a simplified version - in a real implementation, you'd need to

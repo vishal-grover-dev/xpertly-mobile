@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { View, StyleSheet, Animated, Easing } from "react-native";
-import Logo from "./Logo";
+import Logo from "./Logo.component";
 import { useBrandColors } from "@/src/theme/ThemeContext";
 import { Text } from "react-native-paper";
 

@@ -21,9 +21,9 @@ const lightBrandColors = {
 
   // Accent Colors
   accent: {
-    main: "#8BC34A", // Lime Green
-    light: "#AED581", // Lighter variant
-    dark: "#689F38", // Darker variant
+    main: "#00BCD4", // Lime Green
+    light: "#4DD0E1", // Lighter variant
+    dark: "#008BA3", // Darker variant
     text: "#FFFFFF", // Text on accent
   },
 
@@ -67,10 +67,10 @@ const darkBrandColors = {
 
   // Accent Colors
   accent: {
-    main: "#76FF03", // Bright Lime
-    light: "#B0FF57", // Lighter variant
-    dark: "#32CB00", // Darker variant
-    text: "#000000", // Text on accent (black for readability)
+    main: "#0097A7", // Bright Lime
+    light: "#26C6DA", // Lighter variant
+    dark: "#006978", // Darker variant
+    text: "#E0F7FA", // Text on accent (black for readability)
   },
 
   // Text Colors
@@ -141,6 +141,10 @@ const darkTheme = {
 
 // Export function to get the appropriate theme based on color scheme
 export const getTheme = (colorScheme: string) => {
+  return colorScheme === "dark" ? darkTheme : lightTheme;
+};
+
+export const setTheme = (colorScheme: string) => {
   return colorScheme === "dark" ? darkTheme : lightTheme;
 };
 

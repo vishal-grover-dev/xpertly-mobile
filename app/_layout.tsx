@@ -1,35 +1,33 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import { PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { useColorScheme } from "react-native";
-import { getTheme, lightBrandColors, darkBrandColors } from "../src/theme/paperTheme";
-import { BrandColorsProvider } from "../src/theme/ThemeContext";
-import * as SplashScreen from 'expo-splash-screen';
-import CustomSplashScreen from '@/src/components/SplashScreen';
+import { getTheme } from "../src/theme/paperTheme";
+import { ThemeProvider, useTheme } from "../src/theme/ThemeContext";
+import * as SplashScreen from "expo-splash-screen";
+import CustomSplashScreen from "@/src/components/Splash.component";
 
 // Keep the splash screen visible while we fetch resources
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch((error) => {
+  console.log("🚀 ~ error:", error);
+});
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const theme = getTheme(colorScheme || "light");
-  const brandColors = colorScheme === "dark" ? darkBrandColors : lightBrandColors;
+// App content with theme applied
+const AppContent = () => {
+  const { isLightTheme, brandColors } = useTheme();
+  const theme = getTheme(isLightTheme ? "light" : "dark");
   
   const [isAppReady, setAppReady] = useState(false);
   const [isSplashAnimationComplete, setSplashAnimationComplete] = useState(false);
 
   useEffect(() => {
-    // Prepare your app resources here
     async function prepare() {
       try {
         // Pre-load fonts, make API calls, etc.
-        // Artificially delay for a smoother splash experience
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       } catch (e) {
         console.warn(e);
       } finally {
-        // Tell the application to render
         setAppReady(true);
       }
     }
@@ -37,12 +35,19 @@ export default function RootLayout() {
     prepare();
   }, []);
 
-  const onLayoutRootView = useCallback(async () => {
+  useEffect(() => {
     if (isAppReady) {
-      // This tells the splash screen to hide immediately
-      await SplashScreen.hideAsync();
-      // Wait for a short delay to allow our custom splash screen to show
-      setTimeout(() => setSplashAnimationComplete(true), 1000);
+      const timer = setTimeout(async () => {
+        try {
+          await SplashScreen.hideAsync();
+        } catch (e) {
+          console.warn("Error hiding splash screen:", e);
+        } finally {
+          setSplashAnimationComplete(true);
+        }
+      }, 1000);
+
+      return () => clearTimeout(timer);
     }
   }, [isAppReady]);
 
@@ -55,12 +60,23 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider onLayout={onLayoutRootView}>
-      <BrandColorsProvider>
-        <PaperProvider theme={theme}>
-          <Stack />
-        </PaperProvider>
-      </BrandColorsProvider>
+    <PaperProvider theme={theme}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      />
+    </PaperProvider>
+  );
+};
+
+// Root layout with theme provider
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
