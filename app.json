@@ -32,10 +32,21 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": ["node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"]
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#212121"
     }
   }
 }

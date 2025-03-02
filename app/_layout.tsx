@@ -1,39 +1,66 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import React, { useCallback, useEffect, useState } from "react";
+import { Stack } from "expo-router";
+import { PaperProvider } from "react-native-paper";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useColorScheme } from "react-native";
+import { getTheme, lightBrandColors, darkBrandColors } from "../src/theme/paperTheme";
+import { BrandColorsProvider } from "../src/theme/ThemeContext";
 import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import CustomSplashScreen from '@/src/components/SplashScreen';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const theme = getTheme(colorScheme || "light");
+  const brandColors = colorScheme === "dark" ? darkBrandColors : lightBrandColors;
+  
+  const [isAppReady, setAppReady] = useState(false);
+  const [isSplashAnimationComplete, setSplashAnimationComplete] = useState(false);
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    // Prepare your app resources here
+    async function prepare() {
+      try {
+        // Pre-load fonts, make API calls, etc.
+        // Artificially delay for a smoother splash experience
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        // Tell the application to render
+        setAppReady(true);
+      }
     }
-  }, [loaded]);
 
-  if (!loaded) {
+    prepare();
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (isAppReady) {
+      // This tells the splash screen to hide immediately
+      await SplashScreen.hideAsync();
+      // Wait for a short delay to allow our custom splash screen to show
+      setTimeout(() => setSplashAnimationComplete(true), 1000);
+    }
+  }, [isAppReady]);
+
+  if (!isAppReady) {
     return null;
   }
 
+  if (!isSplashAnimationComplete) {
+    return <CustomSplashScreen />;
+  }
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <SafeAreaProvider onLayout={onLayoutRootView}>
+      <BrandColorsProvider>
+        <PaperProvider theme={theme}>
+          <Stack />
+        </PaperProvider>
+      </BrandColorsProvider>
+    </SafeAreaProvider>
   );
 }
